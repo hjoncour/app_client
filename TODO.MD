@@ -1,0 +1,7 @@
+- Replace user_credentials.csv by call to a real db
+- Add unit tests
+- Add use of token to close App and stay connected
+- Screen
+- Login Validators
+- Login feature
+- Sign Up Validators
