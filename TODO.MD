@@ -5,3 +5,5 @@
 - Login Validators
 - Login feature
 - Sign Up Validators
+    - Check user doesn't exist
+    - Validate using email?

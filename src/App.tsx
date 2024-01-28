@@ -6,55 +6,111 @@ function App() {
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    // Invoke the signup command in Rust
-    const response = await invoke("signup", { email, password });
-    console.log(response); // Handle response appropriately
+  const validateInput = () => {
+    return email.trim() !== "" && password.trim() !== "";
   };
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle login logic
+    setErrorMessage(""); // Clear any existing error messages
+    if (!validateInput()) {
+      setErrorMessage("Please enter both email and password.");
+      return;
+    }
+    try {
+      const response = await invoke("signup", { email, password });
+      console.log("Signup response:", response);
+      setIsLoggedIn(true);
+      setUserEmail(email);
+    } catch (error) {
+      console.error("Error during signup:", error);
+      if (error instanceof Error) {
+        setErrorMessage(error.message); // Use 'message' property if it's an Error
+      } else {
+        setErrorMessage("An unexpected error occurred."); // Fallback error message
+      }
+    }
   };
+  
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(""); // Clear any existing error messages
+    if (!validateInput()) {
+      setErrorMessage("Please enter both email and password.");
+      return;
+    }
+    console.log("------TEST");
+    try {
+      const response = await invoke("login", { email, password });
+      const data = JSON.parse(response as string); // Parse the JSON response
+      console.log("Login response:", data);
+      if (data.success) {
+        setIsLoggedIn(true);
+        setUserEmail(email);
+      } else {
+        setErrorMessage(data.message); // Set the error message from the response
+      }
+      console.log("------TEST");
+    } catch (error) {
+      console.error("Error during login:", error);
+      if (typeof error === 'string') {
+        setErrorMessage(error); // If the error is a string, display it
+      } else {
+        setErrorMessage("An unexpected error occurred."); // Fallback error message
+      }
+    }
+  };  
 
   return (
     <div className="container">
-      <h1>Welcome to Tauri!</h1>
-      {isSigningUp ? (
-        <form onSubmit={handleSignup}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Sign Up</button>
-          <button onClick={() => setIsSigningUp(false)}>Go to Login</button>
-        </form>
+      {isLoggedIn ? (
+        <div>
+          <h1>Welcome, {userEmail}!</h1>
+          <p>You are now logged in.</p>
+        </div>
       ) : (
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Login</button>
-          <button onClick={() => setIsSigningUp(true)}>Go to Signup</button>
-        </form>
+        <div>
+          <h1>Welcome to Tauri!</h1>
+          {errorMessage && <p className="error">{errorMessage}</p>}
+          {isSigningUp ? (
+            <form onSubmit={handleSignup}>
+              <input
+                type="email"
+                placeholder="Email"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="submit">Sign Up</button>
+              <button type="button" onClick={() => setIsSigningUp(false)}>Go to Login</button>
+            </form>
+          ) : (
+            <form onSubmit={handleLogin}>
+              <input
+                type="email"
+                placeholder="Email"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="submit">Login</button>
+              <button type="button" onClick={() => setIsSigningUp(true)}>Go to Signup</button>
+            </form>
+          )}
+        </div>
       )}
     </div>
-  );
+  );  
 }
 
 export default App;
