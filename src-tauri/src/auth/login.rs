@@ -18,7 +18,7 @@ pub fn login(email: String, password: String) -> Result<String, String> {
     }).unwrap())?;
     let reader: BufReader<File> = BufReader::new(file);
     for line in reader.lines() {
-        let line = line.map_err(|_| serde_json::to_string(&LoginResponse {
+        let line: String = line.map_err(|_| serde_json::to_string(&LoginResponse {
             success: false,
             message: "Failed to read line".to_string(),
         }).unwrap())?;
