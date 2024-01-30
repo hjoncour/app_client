@@ -1,5 +1,8 @@
-import { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import useForm from './form/useForm';
+import { AuthForm} from './form/authForm';
+
 import "./styles/main.css";
 
 function App() {
@@ -9,6 +12,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [formValues, handleFormChange] = useForm({ email: '', password: '' });
 
   const validateInput = () => {
     return email.trim() !== "" && password.trim() !== "";
@@ -43,7 +48,6 @@ function App() {
       setErrorMessage("Please enter both email and password.");
       return;
     }
-    console.log("------TEST");
     try {
       const response = await invoke("login", { email, password });
       const data = JSON.parse(response as string); // Parse the JSON response
@@ -54,7 +58,6 @@ function App() {
       } else {
         setErrorMessage(data.message); // Set the error message from the response
       }
-      console.log("------TEST");
     } catch (error) {
       console.error("Error during login:", error);
       if (typeof error === 'string') {
@@ -76,41 +79,17 @@ function App() {
         <div>
           <h1>Welcome to Tauri!</h1>
           {errorMessage && <p className="error">{errorMessage}</p>}
-          {isSigningUp ? (
-            <form onSubmit={handleSignup}>
-              <input
-                type="email"
-                placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button type="submit">Sign Up</button>
-              <button type="button" onClick={() => setIsSigningUp(false)}>Go to Login</button>
-            </form>
-          ) : (
-            <form onSubmit={handleLogin}>
-              <input
-                type="email"
-                placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button type="submit">Login</button>
-              <button type="button" onClick={() => setIsSigningUp(true)}>Go to Signup</button>
-            </form>
-          )}
+          <AuthForm
+            isSigningUp={isSigningUp}
+            onSubmit={isSigningUp ? handleSignup : handleLogin}
+            onChangeEmail={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            onChangePassword={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            onChangeMode={() => setIsSigningUp(!isSigningUp)}
+          />
         </div>
       )}
     </div>
-  );  
+  );
 }
 
 export default App;
