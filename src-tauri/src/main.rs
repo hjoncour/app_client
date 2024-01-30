@@ -2,9 +2,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod auth;
-use std::fs::File;
-use std::io::{BufReader, BufRead};
-use serde::{Serialize, Deserialize};
 
 use auth::login::login;
 use auth::signup::signup;

@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import useForm from './form/useForm';
 import { AuthForm} from './form/authForm';
 
 import "./styles/main.css";
@@ -12,8 +11,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const [formValues, handleFormChange] = useForm({ email: '', password: '' });
 
   const validateInput = () => {
     return email.trim() !== "" && password.trim() !== "";
