@@ -1,6 +1,4 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead};
-use serde::{Serialize, Deserialize};
 
 #[tauri::command]
 pub fn signup(email: String, password: String) -> Result<String, String> {
